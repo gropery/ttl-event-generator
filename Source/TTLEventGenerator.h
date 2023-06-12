@@ -20,20 +20,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PROCESSORPLUGIN_H_DEFINED
-#define PROCESSORPLUGIN_H_DEFINED
+#ifndef TTLEVENTGENERATOR_H_DEFINED
+#define TTLEVENTGENERATOR_H_DEFINED
 
 #include <ProcessorHeaders.h>
 
-
-class ProcessorPlugin : public GenericProcessor
+class TTLEventGenerator : public GenericProcessor
 {
 public:
 	/** The class constructor, used to initialize any members. */
-	ProcessorPlugin();
+	TTLEventGenerator();
 
 	/** The class destructor, used to deallocate memory */
-	~ProcessorPlugin();
+	~TTLEventGenerator();
 
 	/** If the processor has a custom editor, this method must be defined to instantiate it. */
 	AudioProcessorEditor* createEditor() override;
@@ -71,6 +70,22 @@ public:
 		Parameter objects*/
 	void loadCustomParametersFromXml(XmlElement* parentElement) override;
 
+	bool startAcquisition() override;
+
+	/** Called whenever a parameter's value is changed */
+	void parameterValueChanged(Parameter* param) override;
+
+private:
+	EventChannel* ttlChannel; // local pointer to TTL output channel
+	int counter = 0; // counts the total number of incoming samples
+	bool state = false; // holds the state of the current TTL line (on or off)
+
+	bool eventWasTriggered = false; // true if an event was manually triggered
+	int triggeredEventCounter = 0; // counter for manually triggered events
+
+	bool shouldTriggerEvent = false; // true if an event should be manually triggered
+	float eventIntervalMs = 1000.0f; // time between events
+	int outputLine = 0; // TTL output line
 };
 
 #endif
